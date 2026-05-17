@@ -4,6 +4,8 @@
     "title": "欢迎来到我的文字站",
     "date": "2026-05-17",
     "tags": ["随笔", "站点说明"],
+    "collection": "daily-notes",
+    "visibility": "public",
     "summary": "这里可以放你的原创文字、排版二创、日记、札记，或者任何想长期保存的作品。",
     "file": "posts/welcome.md",
     "type": "markdown"
@@ -13,6 +15,8 @@
     "title": "HTML 排版作品示例",
     "date": "2026-05-16",
     "tags": ["HTML", "排版"],
+    "collection": "layout-works",
+    "visibility": "public",
     "summary": "如果你有已经排好版的 HTML 作品，也可以直接放进 posts 文件夹并加入清单。",
     "file": "posts/html-layout-demo.html",
     "type": "html"

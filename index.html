@@ -11,74 +11,97 @@
   <body>
     <div class="site-shell">
       <aside class="profile-panel" aria-label="个人简介">
-        <div class="avatar" aria-hidden="true">文</div>
+        <div id="avatar" class="avatar" aria-hidden="true">文</div>
         <p class="eyebrow">Personal Journal</p>
         <h1 id="site-title">你的名字</h1>
         <p id="site-tagline" class="tagline">写字、整理、保存一些心事与作品。</p>
 
+        <button id="open-about" class="wide-button" type="button">完整身份页</button>
         <dl class="profile-list" id="profile-list"></dl>
-
         <nav class="profile-links" id="profile-links" aria-label="个人链接"></nav>
       </aside>
 
       <main class="content-panel">
-        <header class="topbar">
-          <div>
-            <p class="eyebrow">Archive</p>
-            <h2>文章目录</h2>
-          </div>
-          <label class="search-box">
-            <span>搜索</span>
-            <input id="search-input" type="search" placeholder="标题、标签、正文" />
-          </label>
-        </header>
+        <section id="home-view">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow">Archive</p>
+              <h2>作品与文章</h2>
+            </div>
+            <label class="search-box">
+              <span>搜索</span>
+              <input id="search-input" type="search" placeholder="标题、标签、作品集、正文" />
+            </label>
+          </header>
 
-        <section class="tag-filter" aria-label="标签筛选">
-          <button class="tag-filter-button is-active" type="button" data-tag-filter="all">全部</button>
-          <div id="tag-filter-list" class="tag-filter-list"></div>
+          <section class="collections-block" aria-label="作品集">
+            <div class="section-heading">
+              <p class="eyebrow">Collections</p>
+              <h3>作品集</h3>
+            </div>
+            <div id="collection-list" class="collection-list"></div>
+          </section>
+
+          <section class="filter-bar" aria-label="筛选">
+            <button class="tag-filter-button is-active" type="button" data-collection-filter="all">全部作品集</button>
+            <button class="tag-filter-button is-active" type="button" data-tag-filter="all">全部标签</button>
+            <div id="tag-filter-list" class="tag-filter-list"></div>
+          </section>
+
+          <section id="post-list" class="post-list" aria-live="polite"></section>
+
+          <nav class="pagination" aria-label="分页">
+            <button id="first-page" type="button">首页</button>
+            <button id="prev-page" type="button">上一页</button>
+            <span id="page-info" class="page-info">第 1 / 1 页</span>
+            <button id="next-page" type="button">下一页</button>
+            <button id="last-page" type="button">末页</button>
+            <label class="jump-box">
+              <span>跳转</span>
+              <input id="page-jump" type="number" min="1" value="1" />
+            </label>
+            <button id="jump-button" type="button">前往</button>
+          </nav>
         </section>
-
-        <section id="post-list" class="post-list" aria-live="polite"></section>
-
-        <nav class="pagination" aria-label="分页">
-          <button id="first-page" type="button">首页</button>
-          <button id="prev-page" type="button">上一页</button>
-          <span id="page-info" class="page-info">第 1 / 1 页</span>
-          <button id="next-page" type="button">下一页</button>
-          <button id="last-page" type="button">末页</button>
-          <label class="jump-box">
-            <span>跳转</span>
-            <input id="page-jump" type="number" min="1" value="1" />
-          </label>
-          <button id="jump-button" type="button">前往</button>
-        </nav>
 
         <article id="reader" class="reader" hidden>
           <button id="close-reader" class="text-button" type="button">返回目录</button>
           <p id="reader-date" class="eyebrow"></p>
           <h2 id="reader-title"></h2>
-          <div id="reader-tags" class="tag-row"></div>
           <div class="reader-actions">
             <button id="like-button" type="button">喜欢 0</button>
           </div>
           <div id="reader-body" class="reader-body"></div>
+          <footer class="reader-footer">
+            <div>
+              <p class="eyebrow">Collection</p>
+              <div id="reader-collection" class="reader-meta-row"></div>
+            </div>
+            <div>
+              <p class="eyebrow">Tags</p>
+              <div id="reader-tags" class="tag-row"></div>
+            </div>
+          </footer>
           <section class="comments">
             <h3>评论</h3>
             <div id="comments-box"></div>
           </section>
         </article>
+
+        <article id="about-view" class="reader about-view" hidden>
+          <button id="close-about" class="text-button" type="button">返回主页</button>
+          <p class="eyebrow">Identity</p>
+          <h2 id="about-title">关于我</h2>
+          <div id="about-body" class="reader-body"></div>
+          <div class="about-details">
+            <dl class="profile-list" id="about-profile-list"></dl>
+            <nav class="profile-links" id="about-profile-links" aria-label="个人链接"></nav>
+          </div>
+        </article>
       </main>
     </div>
 
     <script src="./site.config.js"></script>
-    <script>
-      window.__BLOG_APP_LOADED__ = false;
-    </script>
-    <script src="./assets/app.js"></script>
-    <script>
-      if (!window.__BLOG_APP_LOADED__) {
-        document.write('<script src="./app.js"><\\/script>');
-      }
-    </script>
+    <script src="./assets/app.js" onerror="this.onerror=null;this.src='./app.js';"></script>
   </body>
 </html>

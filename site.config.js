@@ -2,25 +2,40 @@ window.BLOG_CONFIG = {
   theme: "sage",
   postsPerPage: 5,
   site: {
-    title: "superherolegendsheep",
-    tagline: "沪京/中美/安平",
+    title: "你的名字",
+    tagline: "写字、整理、保存一些心事与作品。",
+    avatar: "",
+    aboutTitle: "关于我",
+    about:
+      "这里可以写更完整的身份介绍：你是谁、你写什么、你喜欢怎样的表达、这个站点准备用来收藏什么。",
     profile: {
-      "身份信息": "上海=张溟安，北京=赵临渊",
-      "作者申明": "请勿用于盈利",
-      "阅读须知": "感谢阅读"
+      "身份": "文字创作者",
+      "坐标": "某个安静的地方",
+      "内容": "原创小说 / 随笔 / HTML 排版二创"
     },
     links: [
-      { label: "GitHub", url: "https://github.com/你的用户名" },
+      { label: "GitHub", url: "https://github.com/superherolegendsheep" },
       { label: "Email", url: "mailto:you@example.com" }
     ]
   },
+  collections: [
+    {
+      id: "daily-notes",
+      title: "日常札记",
+      description: "随笔、记录、灵感碎片和站点说明。"
+    },
+    {
+      id: "layout-works",
+      title: "排版作品",
+      description: "HTML 排版二创、视觉化文字页面和特殊格式作品。"
+    }
+  ],
   comments: {
-    enabled: true,
-    // 填好以后把 enabled 改成 true。推荐用 Giscus，把 GitHub Discussions 当评论区。
+    enabled: false,
     repo: "superherolegendsheep/archive",
-    repoId: "R_kgDOSf3f9w",
+    repoId: "",
     category: "Announcements",
-    categoryId: "DIC_kwDOSf3f984C9Pa_"
+    categoryId: ""
   },
   themes: {
     sage: {

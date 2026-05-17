@@ -1,24 +1,37 @@
 const config = window.BLOG_CONFIG;
 window.__BLOG_APP_LOADED__ = true;
+
 const state = {
   posts: [],
   filtered: [],
   page: 1,
   activePost: null,
-  activeTag: "all"
+  activeTag: "all",
+  activeCollection: "all"
 };
 
 const els = {
+  homeView: document.querySelector("#home-view"),
   siteTitle: document.querySelector("#site-title"),
   siteTagline: document.querySelector("#site-tagline"),
+  avatar: document.querySelector("#avatar"),
   profileList: document.querySelector("#profile-list"),
   profileLinks: document.querySelector("#profile-links"),
+  openAbout: document.querySelector("#open-about"),
+  closeAbout: document.querySelector("#close-about"),
+  aboutView: document.querySelector("#about-view"),
+  aboutTitle: document.querySelector("#about-title"),
+  aboutBody: document.querySelector("#about-body"),
+  aboutProfileList: document.querySelector("#about-profile-list"),
+  aboutProfileLinks: document.querySelector("#about-profile-links"),
+  collectionList: document.querySelector("#collection-list"),
   search: document.querySelector("#search-input"),
   tagFilterList: document.querySelector("#tag-filter-list"),
   postList: document.querySelector("#post-list"),
   reader: document.querySelector("#reader"),
   readerDate: document.querySelector("#reader-date"),
   readerTitle: document.querySelector("#reader-title"),
+  readerCollection: document.querySelector("#reader-collection"),
   readerTags: document.querySelector("#reader-tags"),
   readerBody: document.querySelector("#reader-body"),
   closeReader: document.querySelector("#close-reader"),
@@ -49,25 +62,62 @@ function renderProfile() {
   document.title = config.site.title;
   els.siteTitle.textContent = config.site.title;
   els.siteTagline.textContent = config.site.tagline;
+  els.aboutTitle.textContent = config.site.aboutTitle || "关于我";
+  els.aboutBody.innerHTML = markdownToHtml(config.site.about || "");
 
-  els.profileList.innerHTML = Object.entries(config.site.profile)
+  if (config.site.avatar) {
+    els.avatar.innerHTML = `<img src="${escapeAttribute(config.site.avatar)}" alt="" />`;
+  } else {
+    els.avatar.textContent = (config.site.title || "文").slice(0, 1);
+  }
+
+  const profileHtml = Object.entries(config.site.profile)
     .map(([key, value]) => `<div><dt>${escapeHtml(key)}</dt><dd>${escapeHtml(value)}</dd></div>`)
     .join("");
 
-  els.profileLinks.innerHTML = config.site.links
+  const linksHtml = config.site.links
     .map((link) => `<a href="${escapeAttribute(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)}</a>`)
     .join("");
+
+  els.profileList.innerHTML = profileHtml;
+  els.aboutProfileList.innerHTML = profileHtml;
+  els.profileLinks.innerHTML = linksHtml;
+  els.aboutProfileLinks.innerHTML = linksHtml;
 }
 
 async function loadPosts() {
   const response = await fetchFirst(["./posts/posts.json", "./posts.json"]);
-  if (!response.ok) {
-    throw new Error("posts.json not found");
-  }
+  if (!response.ok) throw new Error("posts.json not found");
   const posts = await response.json();
-  state.posts = posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+  state.posts = posts
+    .filter((post) => post.visibility !== "private")
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+  renderCollections();
   renderTagFilters();
   filterPosts();
+}
+
+function renderCollections() {
+  const collections = getCollectionsWithCounts();
+  els.collectionList.innerHTML = collections
+    .map((collection) => {
+      return `
+        <button class="collection-card" type="button" data-collection-filter="${escapeAttribute(collection.id)}">
+          <span class="collection-count">${collection.count}</span>
+          <strong>${escapeHtml(collection.title)}</strong>
+          <span>${escapeHtml(collection.description || "")}</span>
+        </button>
+      `;
+    })
+    .join("");
+
+  document.querySelectorAll("[data-collection-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.activeCollection = button.dataset.collectionFilter;
+      state.page = 1;
+      filterPosts();
+    });
+  });
 }
 
 function renderTagFilters() {
@@ -91,10 +141,28 @@ function renderTagFilters() {
   });
 }
 
-function updateTagFilterState() {
+function updateFilterState() {
   document.querySelectorAll("[data-tag-filter]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.tagFilter === state.activeTag);
   });
+  document.querySelectorAll("[data-collection-filter]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.collectionFilter === state.activeCollection);
+  });
+}
+
+function getCollectionsWithCounts() {
+  return (config.collections || []).map((collection) => ({
+    ...collection,
+    count: state.posts.filter((post) => post.collection === collection.id).length
+  }));
+}
+
+function getCollection(id) {
+  return (config.collections || []).find((collection) => collection.id === id) || {
+    id: "uncategorized",
+    title: "未归档",
+    description: ""
+  };
 }
 
 function getPageCount() {
@@ -107,13 +175,10 @@ function renderList() {
   const start = (state.page - 1) * config.postsPerPage;
   const visiblePosts = state.filtered.slice(start, start + config.postsPerPage);
 
-  els.reader.hidden = true;
-  els.postList.hidden = false;
-  document.querySelector(".pagination").hidden = false;
-
+  showHome();
   els.postList.innerHTML = visiblePosts.length
     ? visiblePosts.map(renderPostCard).join("")
-    : `<p class="muted">没有找到文章。可以换一个关键词或标签试试。</p>`;
+    : `<p class="muted">没有找到文章。可以换一个关键词、标签或作品集试试。</p>`;
 
   els.pageInfo.textContent = `第 ${state.page} / ${pageCount} 页`;
   els.pageJump.max = pageCount;
@@ -132,15 +197,17 @@ function renderPostCard(post) {
   const tags = (post.tags || [])
     .map((tag) => `<button class="tag" type="button" data-tag-card="${escapeAttribute(tag)}">${escapeHtml(tag)}</button>`)
     .join("");
+  const collection = getCollection(post.collection);
 
   return `
     <article class="post-card">
       <div class="post-meta">
         <span class="eyebrow">${formatDate(post.date)}</span>
-        <div class="tag-row">${tags}</div>
+        <button class="collection-chip" type="button" data-collection-card="${escapeAttribute(collection.id)}">${escapeHtml(collection.title)}</button>
       </div>
       <h3>${escapeHtml(post.title)}</h3>
       <p class="muted">${escapeHtml(post.summary || "")}</p>
+      <div class="tag-row">${tags}</div>
       <div>
         <button type="button" data-open-post="${escapeAttribute(post.id)}">阅读</button>
       </div>
@@ -159,20 +226,35 @@ async function openPost(id) {
   }
 
   const source = await response.text();
+  const collection = getCollection(post.collection);
   state.activePost = post;
 
-  els.postList.hidden = true;
-  document.querySelector(".pagination").hidden = true;
+  els.homeView.hidden = true;
+  els.aboutView.hidden = true;
   els.reader.hidden = false;
   els.readerDate.textContent = formatDate(post.date);
   els.readerTitle.textContent = post.title;
-  els.readerTags.innerHTML = (post.tags || [])
-    .map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`)
-    .join("");
   els.readerBody.innerHTML = post.type === "html" ? source : markdownToHtml(source);
+  els.readerCollection.innerHTML = `<button class="collection-chip" type="button" data-reader-collection="${escapeAttribute(collection.id)}">${escapeHtml(collection.title)}</button>`;
+  els.readerTags.innerHTML = (post.tags || [])
+    .map((tag) => `<button class="tag" type="button" data-tag-card="${escapeAttribute(tag)}">${escapeHtml(tag)}</button>`)
+    .join("");
   renderLike(post.id);
   renderComments(post);
   window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function openAbout() {
+  els.homeView.hidden = true;
+  els.reader.hidden = true;
+  els.aboutView.hidden = false;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function showHome() {
+  els.homeView.hidden = false;
+  els.reader.hidden = true;
+  els.aboutView.hidden = true;
 }
 
 function renderLike(id) {
@@ -220,11 +302,13 @@ function renderComments(post) {
 function filterPosts() {
   const keyword = els.search.value.trim().toLowerCase();
   state.filtered = state.posts.filter((post) => {
+    const collection = getCollection(post.collection);
+    const collectionMatched = state.activeCollection === "all" || post.collection === state.activeCollection;
     const tagMatched = state.activeTag === "all" || (post.tags || []).includes(state.activeTag);
-    const haystack = [post.title, post.summary, post.date, ...(post.tags || [])].join(" ").toLowerCase();
-    return tagMatched && haystack.includes(keyword);
+    const haystack = [post.title, post.summary, post.date, collection.title, ...(post.tags || [])].join(" ").toLowerCase();
+    return collectionMatched && tagMatched && haystack.includes(keyword);
   });
-  updateTagFilterState();
+  updateFilterState();
   renderList();
 }
 
@@ -234,7 +318,7 @@ function goToPage(page) {
 }
 
 function markdownToHtml(markdown) {
-  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+  const lines = String(markdown).replace(/\r\n/g, "\n").split("\n");
   const html = [];
   let listOpen = false;
   let paragraph = [];
@@ -353,12 +437,23 @@ els.lastPage.addEventListener("click", () => goToPage(getPageCount()));
 els.jumpButton.addEventListener("click", () => goToPage(Number(els.pageJump.value)));
 els.closeReader.addEventListener("click", renderList);
 els.likeButton.addEventListener("click", toggleLike);
+els.openAbout.addEventListener("click", openAbout);
+els.closeAbout.addEventListener("click", renderList);
+
 document.addEventListener("click", (event) => {
   const tagButton = event.target.closest("[data-tag-card]");
-  if (!tagButton) return;
-  state.activeTag = tagButton.dataset.tagCard;
-  state.page = 1;
-  filterPosts();
+  if (tagButton) {
+    state.activeTag = tagButton.dataset.tagCard;
+    state.page = 1;
+    filterPosts();
+  }
+
+  const collectionButton = event.target.closest("[data-collection-card], [data-reader-collection]");
+  if (collectionButton) {
+    state.activeCollection = collectionButton.dataset.collectionCard || collectionButton.dataset.readerCollection;
+    state.page = 1;
+    filterPosts();
+  }
 });
 
 applyTheme();
@@ -366,7 +461,7 @@ renderProfile();
 loadPosts().catch(() => {
   els.postList.innerHTML = `
     <p class="muted">
-      文章加载失败。请确认 GitHub 仓库里已经上传了 posts/posts.json、posts 文件夹里的文章，以及 assets 文件夹。
+      文章加载失败。请确认 GitHub 仓库里有 posts.json，或有 posts/posts.json。
     </p>
   `;
 });

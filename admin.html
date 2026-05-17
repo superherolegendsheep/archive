@@ -3,66 +3,113 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>文章导入工具</title>
+    <title>博客管理工具</title>
     <link rel="stylesheet" href="./assets/styles.css" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="admin-shell">
       <section class="admin-panel">
-        <p class="eyebrow">Local Import</p>
-        <h1>Markdown / HTML 文章导入工具</h1>
+        <p class="eyebrow">Local Manager</p>
+        <h1>博客管理工具</h1>
         <p class="muted">
-          选择你的 Markdown 或 HTML 文件，填写信息后生成文章文件和清单片段。GitHub Pages
-          是静态网站，所以这里会帮你把要提交到仓库的内容准备好。
+          这个页面不会直接改 GitHub。你在这里填写信息，下载生成的新文件，再上传覆盖到仓库。
         </p>
 
-        <div class="form-grid">
-          <label>
-            标题
-            <input id="post-title" type="text" placeholder="例如：雨夜札记" />
-          </label>
-          <label>
-            日期
-            <input id="post-date" type="date" />
-          </label>
-          <label>
-            标签
-            <input id="post-tags" type="text" placeholder="用逗号分隔，例如 小说, 随笔" />
-          </label>
-          <label>
-            文件
-            <input id="post-file" type="file" accept=".md,.markdown,.html,.htm,text/markdown,text/html" />
-          </label>
-        </div>
+        <nav class="admin-tabs" aria-label="管理功能">
+          <button class="is-active" type="button" data-admin-tab="site">站点信息</button>
+          <button type="button" data-admin-tab="post">新增文章</button>
+          <button type="button" data-admin-tab="manage">管理文章</button>
+        </nav>
 
-        <div class="admin-actions">
-          <button id="build-post" type="button">生成仓库内容</button>
-        </div>
-
-        <section class="output-panel">
-          <h2>1. 新文章文件</h2>
-          <p class="muted">保存到 <code>posts/</code> 文件夹。</p>
-          <textarea id="file-output" readonly></textarea>
-          <button id="download-post" type="button">下载文章文件</button>
+        <section class="admin-tab-panel" data-admin-panel="site">
+          <h2>站点信息、头像、联系方式、颜色</h2>
+          <div class="form-grid">
+            <label>站点名称<input id="site-title-input" type="text" /></label>
+            <label>一句话简介<input id="site-tagline-input" type="text" /></label>
+            <label>身份<input id="profile-identity-input" type="text" /></label>
+            <label>坐标<input id="profile-location-input" type="text" /></label>
+            <label>内容类型<input id="profile-content-input" type="text" /></label>
+            <label>GitHub 链接<input id="github-input" type="url" /></label>
+            <label>Email<input id="email-input" type="email" /></label>
+            <label>
+              主题
+              <select id="theme-input">
+                <option value="sage">sage</option>
+                <option value="berry">berry</option>
+                <option value="ink">ink</option>
+              </select>
+            </label>
+          </div>
+          <label class="wide-label">完整身份页正文<textarea id="about-input"></textarea></label>
+          <label class="wide-label">作品集，每行一个：id | 标题 | 简介<textarea id="collections-input"></textarea></label>
+          <label class="wide-label">头像图片<input id="avatar-input" type="file" accept="image/*" /></label>
+          <div id="avatar-preview" class="avatar-preview"></div>
+          <button id="build-config" type="button">生成 site.config.js</button>
+          <div class="output-panel">
+            <textarea id="config-output" readonly></textarea>
+            <button id="download-config" type="button">下载 site.config.js</button>
+          </div>
         </section>
 
-        <section class="output-panel">
-          <h2>2. 添加到 posts/posts.json</h2>
-          <p class="muted">把下面这一段放进数组最前面，逗号按 JSON 格式保留。</p>
-          <textarea id="manifest-output" readonly></textarea>
+        <section class="admin-tab-panel" data-admin-panel="post" hidden>
+          <h2>新增文章</h2>
+          <p class="muted">更简单的方式：填写信息，然后直接粘贴正文。也可以选择 Markdown 或 HTML 文件。</p>
+          <div class="form-grid">
+            <label>标题<input id="post-title" type="text" placeholder="例如：雨夜札记" /></label>
+            <label>日期<input id="post-date" type="date" /></label>
+            <label>标签<input id="post-tags" type="text" placeholder="例如：小说, 随笔" /></label>
+            <label>
+              归属作品集
+              <select id="post-collection"></select>
+            </label>
+            <label>
+              可见性
+              <select id="post-visibility">
+                <option value="public">公开显示</option>
+                <option value="private">仅自己可见草稿</option>
+              </select>
+            </label>
+            <label>
+              正文格式
+              <select id="post-type">
+                <option value="markdown">Markdown</option>
+                <option value="html">HTML</option>
+              </select>
+            </label>
+          </div>
+          <label class="wide-label">选择文件，也可以不选<input id="post-file" type="file" accept=".md,.markdown,.html,.htm,text/markdown,text/html" /></label>
+          <label class="wide-label">正文<textarea id="post-body" placeholder="把文章内容粘贴到这里"></textarea></label>
+          <button id="build-post" type="button">生成文章文件和 posts.json</button>
+          <div class="output-panel">
+            <h3>文章文件</h3>
+            <p class="muted">下载后上传到仓库根目录；如果你整理了 posts 文件夹，也可以放进 posts/。</p>
+            <textarea id="file-output" readonly></textarea>
+            <button id="download-post" type="button">下载文章文件</button>
+          </div>
+          <div class="output-panel">
+            <h3>新的 posts.json</h3>
+            <textarea id="manifest-output" readonly></textarea>
+            <button id="download-posts-json" type="button">下载 posts.json</button>
+          </div>
+        </section>
+
+        <section class="admin-tab-panel" data-admin-panel="manage" hidden>
+          <h2>管理文章</h2>
+          <p class="muted">
+            删除会从目录中移除文章记录。私密草稿不会在首页显示，但公开仓库里的文件本身不是真正加密。
+          </p>
+          <div id="post-manage-list" class="post-manage-list"></div>
+          <button id="build-managed-posts" type="button">生成更新后的 posts.json</button>
+          <div class="output-panel">
+            <textarea id="managed-output" readonly></textarea>
+            <button id="download-managed-posts" type="button">下载 posts.json</button>
+          </div>
         </section>
       </section>
     </main>
 
-    <script>
-      window.__BLOG_ADMIN_LOADED__ = false;
-    </script>
-    <script src="./assets/admin.js"></script>
-    <script>
-      if (!window.__BLOG_ADMIN_LOADED__) {
-        document.write('<script src="./admin.js"><\\/script>');
-      }
-    </script>
+    <script src="./site.config.js"></script>
+    <script src="./assets/admin.js" onerror="this.onerror=null;this.src='./admin.js';"></script>
   </body>
 </html>

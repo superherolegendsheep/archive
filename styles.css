@@ -90,6 +90,7 @@ a:hover {
 .avatar {
   display: grid;
   place-items: center;
+  overflow: hidden;
   width: 74px;
   height: 74px;
   margin-bottom: 24px;
@@ -99,6 +100,13 @@ a:hover {
   color: var(--accent);
   font-size: 30px;
   font-weight: 700;
+}
+
+.avatar img,
+.avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .eyebrow {
@@ -170,6 +178,11 @@ h3 {
   background: var(--panel);
 }
 
+.wide-button {
+  width: 100%;
+  margin: 20px 0 4px;
+}
+
 .content-panel {
   min-width: 0;
 }
@@ -218,6 +231,7 @@ textarea {
   gap: 14px;
 }
 
+.filter-bar,
 .tag-filter {
   display: flex;
   flex-wrap: wrap;
@@ -230,6 +244,59 @@ textarea {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.collections-block {
+  margin: 0 0 24px;
+}
+
+.section-heading {
+  margin-bottom: 12px;
+}
+
+.section-heading h3 {
+  font-size: 22px;
+}
+
+.collection-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.collection-card {
+  display: grid;
+  min-height: 122px;
+  text-align: left;
+  align-content: start;
+  gap: 8px;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.collection-card strong {
+  font-size: 19px;
+}
+
+.collection-card span:last-child {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.collection-card.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.collection-count {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
 }
 
 .tag-filter-button {
@@ -290,6 +357,23 @@ button.tag:hover {
   border: 0;
   background: var(--accent);
   color: #fff;
+}
+
+.collection-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--accent);
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+.collection-chip:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .pagination {
@@ -385,6 +469,24 @@ button.tag:hover {
   border-radius: 8px;
 }
 
+.reader-footer {
+  display: grid;
+  gap: 18px;
+  margin-top: 34px;
+  border-top: 1px solid var(--line);
+  padding-top: 22px;
+}
+
+.reader-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.about-details {
+  margin-top: 28px;
+}
+
 .work-layout {
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
@@ -421,6 +523,91 @@ button.tag:hover {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   margin: 24px 0;
+}
+
+.wide-label {
+  display: grid;
+  gap: 6px;
+  margin: 16px 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+  padding: 9px 11px;
+}
+
+.admin-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 24px 0;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 14px;
+}
+
+.admin-tabs button {
+  padding: 0 14px;
+}
+
+.admin-tabs button.is-active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.avatar-preview {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  width: 96px;
+  height: 96px;
+  margin: 12px 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.post-manage-list {
+  display: grid;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.manage-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px auto;
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 14px;
+}
+
+.manage-row div {
+  display: grid;
+  gap: 4px;
+}
+
+.manage-row span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.delete-check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
 }
 
 .admin-actions {
@@ -463,6 +650,11 @@ textarea {
   }
 
   .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .collection-list,
+  .manage-row {
     grid-template-columns: 1fr;
   }
 }

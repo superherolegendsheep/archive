@@ -63,7 +63,7 @@ function renderProfile() {
   els.siteTitle.textContent = config.site.title;
   els.siteTagline.textContent = config.site.tagline;
   els.aboutTitle.textContent = config.site.aboutTitle || "关于我";
-  els.aboutBody.innerHTML = markdownToHtml(config.site.about || "");
+  els.aboutBody.innerHTML = markdownToHtml(cleanDisplayText(config.site.about || ""));
 
   if (config.site.avatar) {
     els.avatar.innerHTML = `<img src="${escapeAttribute(config.site.avatar)}" alt="" />`;
@@ -75,7 +75,7 @@ function renderProfile() {
     .map(([key, value]) => `<div><dt>${escapeHtml(key)}</dt><dd>${escapeHtml(value)}</dd></div>`)
     .join("");
 
-  const linksHtml = config.site.links
+  const linksHtml = (config.site.links || [])
     .map((link) => `<a href="${escapeAttribute(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)}</a>`)
     .join("");
 
@@ -318,7 +318,7 @@ function goToPage(page) {
 }
 
 function markdownToHtml(markdown) {
-  const lines = String(markdown).replace(/\r\n/g, "\n").split("\n");
+  const lines = cleanDisplayText(markdown).replace(/\r\n/g, "\n").split("\n");
   const html = [];
   let listOpen = false;
   let paragraph = [];
@@ -395,6 +395,14 @@ function inlineMarkdown(text) {
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
     .replace(/`(.+?)`/g, "<code>$1</code>")
     .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+}
+
+function cleanDisplayText(value) {
+  return String(value || "")
+    .replace(/^```(?:markdown|md|text)?\s*/i, "")
+    .replace(/```\s*$/i, "")
+    .replace(/^markdown\s*$/gim, "")
+    .trim();
 }
 
 function formatDate(date) {

@@ -12,16 +12,7 @@ window.BLOG_CONFIG = {
       "坐标": "无数个平行宇宙交汇点",
       "内容": "老沪老京恋爱中！"
     },
-    "links": [
-      {
-        "label": "GitHub",
-        "url": "/"
-      },
-      {
-        "label": "Email",
-        "url": "mailto:/"
-      }
-    ]
+    "links": []
   },
   "collections": [
     {

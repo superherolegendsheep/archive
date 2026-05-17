@@ -75,11 +75,35 @@ https://你的用户名.github.io/仓库名/admin.html
 https://superherolegendsheep.github.io/archive/admin.html
 ```
 
+### 本次更新后要上传的文件
+
+如果你的仓库继续使用根目录结构，请上传并覆盖：
+
+```text
+index.html
+admin.html
+app.js
+admin.js
+styles.css
+site.config.js
+README.md
+```
+
+如果你也保留 `assets/` 文件夹，请同时上传：
+
+```text
+assets/app.js
+assets/admin.js
+assets/styles.css
+```
+
+管理工具生成的文件可以先放到本地工作区的 `exports/` 文件夹，再上传到 GitHub。浏览器不能强制指定下载目录，所以下载后需要你手动移动到 `exports/` 或直接上传到仓库。
+
 ### 改个人信息、头像、颜色
 
 1. 打开 `admin.html`。
 2. 进入“站点信息”。
-3. 填写昵称、简介、身份、联系方式、完整身份页正文。
+3. 填写昵称、简介、身份、完整身份页正文。
 4. 上传头像。
 5. 选择主题颜色。
 6. 点击“生成 site.config.js”。
@@ -91,11 +115,27 @@ https://superherolegendsheep.github.io/archive/admin.html
 1. 打开 `admin.html`。
 2. 进入“新增文章”。
 3. 填标题、日期、标签、作品集、可见性。
-4. 直接粘贴正文，或选择 `.md` / `.html` 文件。
+4. 直接粘贴正文，或选择 `.html` / `.md` / `.txt` / `.docx` 文件。
 5. 点击“生成文章文件和 posts.json”。
 6. 下载文章文件。
 7. 下载新的 `posts.json`。
 8. 把这两个文件上传到 GitHub 仓库。
+
+HTML 文章文件上传后也可以被读者直接打开，例如：
+
+```text
+https://superherolegendsheep.github.io/archive/文章文件名.html
+```
+
+如果想让管理工具直接上传到 GitHub，进入“上传 GitHub”，临时填写 fine-grained token。token 需要给 `superherolegendsheep/archive` 仓库 `Contents: Read and write` 权限。
+
+### 管理标签
+
+1. 打开 `admin.html`。
+2. 进入“管理标签”。
+3. 修改标签名称，或勾选删除。
+4. 点击“生成更新后的 posts.json”。
+5. 下载并上传覆盖 GitHub 里的 `posts.json`。
 
 ### 删除或隐藏文章
 

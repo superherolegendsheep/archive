@@ -6,6 +6,7 @@
     <title>个人文字站</title>
     <meta name="description" content="一个安静、简洁的个人文字博客。" />
     <link rel="stylesheet" href="./assets/styles.css" />
+    <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <div class="site-shell">
@@ -70,6 +71,14 @@
     </div>
 
     <script src="./site.config.js"></script>
+    <script>
+      window.__BLOG_APP_LOADED__ = false;
+    </script>
     <script src="./assets/app.js"></script>
+    <script>
+      if (!window.__BLOG_APP_LOADED__) {
+        document.write('<script src="./app.js"><\\/script>');
+      }
+    </script>
   </body>
 </html>

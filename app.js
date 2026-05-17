@@ -1,4 +1,5 @@
 const config = window.BLOG_CONFIG;
+window.__BLOG_APP_LOADED__ = true;
 const state = {
   posts: [],
   filtered: [],
@@ -59,7 +60,7 @@ function renderProfile() {
 }
 
 async function loadPosts() {
-  const response = await fetch("./posts/posts.json");
+  const response = await fetchFirst(["./posts/posts.json", "./posts.json"]);
   if (!response.ok) {
     throw new Error("posts.json not found");
   }
@@ -151,7 +152,7 @@ async function openPost(id) {
   const post = state.posts.find((item) => item.id === id);
   if (!post) return;
 
-  const response = await fetch(`./${post.file}`);
+  const response = await fetchFirst([`./${post.file}`, `./${post.file.replace(/^posts\//, "")}`]);
   if (!response.ok) {
     els.postList.innerHTML = `<p class="muted">这篇文章文件没有找到：${escapeHtml(post.file)}</p>`;
     return;
@@ -331,6 +332,14 @@ function escapeHtml(value) {
 
 function escapeAttribute(value) {
   return escapeHtml(value).replaceAll("`", "&#096;");
+}
+
+async function fetchFirst(paths) {
+  for (const path of paths) {
+    const response = await fetch(path);
+    if (response.ok) return response;
+  }
+  return new Response("", { status: 404 });
 }
 
 els.search.addEventListener("input", () => {

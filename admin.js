@@ -1,3 +1,5 @@
+window.__BLOG_ADMIN_LOADED__ = true;
+
 const titleInput = document.querySelector("#post-title");
 const dateInput = document.querySelector("#post-date");
 const tagsInput = document.querySelector("#post-tags");

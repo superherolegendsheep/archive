@@ -24,9 +24,9 @@ window.BLOG_CONFIG = {
   "comments": {
     "enabled": false,
     "repo": "superherolegendsheep/archive",
-    "repoId": "",
+    "repoId": "R_kgDOSf3f9w",
     "category": "Announcements",
-    "categoryId": ""
+    "categoryId": "DIC_kwDOSf3f984C9Pa_"
   },
   "themes": {
     "sage": {

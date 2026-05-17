@@ -241,7 +241,7 @@ async function openPost(id) {
   els.openAbout.textContent = "完整身份页";
   els.readerDate.textContent = formatDate(post.date);
   els.readerTitle.textContent = post.title;
-  els.readerBody.innerHTML = post.type === "html" ? source : markdownToHtml(source);
+  els.readerBody.innerHTML = post.type === "html" ? renderHtmlPostFrame(post) : markdownToHtml(source);
   els.readerCollection.innerHTML = `<button class="collection-chip" type="button" data-reader-collection="${escapeAttribute(collection.id)}">${escapeHtml(collection.title)}</button>`;
   els.readerTags.innerHTML = (post.tags || [])
     .map((tag) => `<button class="tag" type="button" data-tag-card="${escapeAttribute(tag)}">${escapeHtml(tag)}</button>`)
@@ -308,6 +308,21 @@ function renderComments(post) {
   script.setAttribute("data-theme", "light");
   script.setAttribute("data-lang", "zh-CN");
   els.commentsBox.appendChild(script);
+}
+
+function renderHtmlPostFrame(post) {
+  const src = `./${post.file}`;
+  return `
+    <div class="html-post-tools">
+      <a href="${escapeAttribute(src)}" target="_blank" rel="noreferrer">新窗口打开原页面</a>
+    </div>
+    <iframe
+      class="html-post-frame"
+      src="${escapeAttribute(src)}"
+      title="${escapeAttribute(post.title)}"
+      loading="lazy"
+    ></iframe>
+  `;
 }
 
 function renderCustomCommentForm() {

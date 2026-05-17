@@ -16,10 +16,10 @@ window.BLOG_CONFIG = {
   },
   "collections": [
     {
-      "cover": "",
       "id": "media-naranja",
       "title": "半只橙子",
-      "description": "天龙人也会有烦恼吗？"
+      "description": "天龙人也会有烦恼吗？",
+      "cover": ""
     }
   ],
   "comments": {
@@ -28,6 +28,11 @@ window.BLOG_CONFIG = {
     "repoId": "",
     "category": "Announcements",
     "categoryId": ""
+  },
+  "customComments": {
+    "enabled": true,
+    "email": "yangqianru20092022@outlook.com",
+    "githubIssueUrl": "https://github.com/superherolegendsheep/archive/issues/new"
   },
   "themes": {
     "sage": {
@@ -57,10 +62,5 @@ window.BLOG_CONFIG = {
       "accent": "#4d6f88",
       "accentSoft": "#dfe9ef"
     }
-  },
-  "customComments": {
-    "enabled": true,
-    "email": "",
-    "githubIssueUrl": "https://github.com/superherolegendsheep/archive/issues/new"
   }
 };

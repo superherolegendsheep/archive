@@ -5,9 +5,9 @@ window.BLOG_CONFIG = {
     title: "superherolegendsheep",
     tagline: "沪京/中美/安平",
     profile: {
-      "身份": "文字创作者",
-      "坐标": "某个安静的地方",
-      "内容": "原创小说 / 随笔 / HTML 排版二创"
+      "身份信息": "上海=张溟安，北京=赵临渊",
+      "作者申明": "请勿用于盈利",
+      "阅读须知": "感谢阅读"
     },
     links: [
       { label: "GitHub", url: "https://github.com/你的用户名" },

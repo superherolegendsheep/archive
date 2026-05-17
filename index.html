@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>个人文字站</title>
+    <meta name="description" content="一个安静、简洁的个人文字博客。" />
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body>
+    <div class="site-shell">
+      <aside class="profile-panel" aria-label="个人简介">
+        <div class="avatar" aria-hidden="true">文</div>
+        <p class="eyebrow">Personal Journal</p>
+        <h1 id="site-title">你的名字</h1>
+        <p id="site-tagline" class="tagline">写字、整理、保存一些心事与作品。</p>
+
+        <dl class="profile-list" id="profile-list"></dl>
+
+        <nav class="profile-links" id="profile-links" aria-label="个人链接"></nav>
+      </aside>
+
+      <main class="content-panel">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Archive</p>
+            <h2>文章目录</h2>
+          </div>
+          <label class="search-box">
+            <span>搜索</span>
+            <input id="search-input" type="search" placeholder="标题、标签、正文" />
+          </label>
+        </header>
+
+        <section id="post-list" class="post-list" aria-live="polite"></section>
+
+        <nav class="pagination" aria-label="分页">
+          <button id="first-page" type="button">首页</button>
+          <button id="prev-page" type="button">上一页</button>
+          <span id="page-info" class="page-info">第 1 / 1 页</span>
+          <button id="next-page" type="button">下一页</button>
+          <button id="last-page" type="button">末页</button>
+          <label class="jump-box">
+            <span>跳转</span>
+            <input id="page-jump" type="number" min="1" value="1" />
+          </label>
+          <button id="jump-button" type="button">前往</button>
+        </nav>
+
+        <article id="reader" class="reader" hidden>
+          <button id="close-reader" class="text-button" type="button">返回目录</button>
+          <p id="reader-date" class="eyebrow"></p>
+          <h2 id="reader-title"></h2>
+          <div id="reader-tags" class="tag-row"></div>
+          <div class="reader-actions">
+            <button id="like-button" type="button">喜欢 <span id="like-count">0</span></button>
+          </div>
+          <div id="reader-body" class="reader-body"></div>
+          <section class="comments">
+            <h3>评论</h3>
+            <div id="comments-box"></div>
+          </section>
+        </article>
+      </main>
+    </div>
+
+    <script src="site.config.js"></script>
+    <script src="assets/app.js"></script>
+  </body>
+</html>

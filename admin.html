@@ -15,6 +15,7 @@
 
         <nav class="admin-tabs" aria-label="管理功能">
           <button class="is-active" type="button" data-admin-tab="site">站点信息</button>
+          <button type="button" data-admin-tab="collections">管理作品集</button>
           <button type="button" data-admin-tab="post">新增文章</button>
           <button type="button" data-admin-tab="manage">管理文章</button>
           <button type="button" data-admin-tab="tags">管理标签</button>
@@ -40,14 +41,24 @@
             <label>GitHub Issue 地址<input id="comment-github-input" type="url" placeholder="https://github.com/用户名/仓库/issues/new" /></label>
           </div>
           <label class="wide-label">完整身份页正文<textarea id="about-input"></textarea></label>
-          <label class="wide-label">作品集，每行一个：id | 标题 | 简介<textarea id="collections-input"></textarea></label>
           <label class="wide-label">头像图片<input id="avatar-input" type="file" accept="image/*" /></label>
           <div id="avatar-preview" class="avatar-preview"></div>
           <button id="build-config" type="button">生成 site.config.js</button>
           <div class="output-panel">
-            <p class="muted">建议保存到工作区：site.config.js</p>
             <textarea id="config-output" readonly></textarea>
             <button id="download-config" type="button">下载 site.config.js</button>
+          </div>
+        </section>
+
+        <section class="admin-tab-panel" data-admin-panel="collections" hidden>
+          <h2>管理作品集</h2>
+          <p class="muted">可新增、改名、删除作品集，并为每个作品集上传封面。删除作品集只会从配置中移除，不会删除文章。</p>
+          <div id="collection-manage-list" class="post-manage-list"></div>
+          <button id="add-collection" type="button">新增作品集</button>
+          <button id="build-collections-config" type="button">生成 site.config.js</button>
+          <div class="output-panel">
+            <textarea id="collections-output" readonly></textarea>
+            <button id="download-collections-config" type="button">下载 site.config.js</button>
           </div>
         </section>
 
@@ -72,7 +83,14 @@
           </div>
           <label class="wide-label">选择文件，也可以不选<input id="post-file" type="file" accept=".html,.htm,.md,.markdown,.txt,.docx,text/html,text/markdown,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" /></label>
           <label class="wide-label">正文<textarea id="post-body" placeholder="把文章内容粘贴到这里"></textarea></label>
-          <button id="build-post" type="button">生成文章文件和 posts.json</button>
+          <div class="admin-actions">
+            <button id="preview-post" type="button">预览文章格式</button>
+            <button id="build-post" type="button">生成文章文件和 posts.json</button>
+          </div>
+          <div class="output-panel">
+            <h3>预览</h3>
+            <article id="post-preview" class="reader-body post-preview"></article>
+          </div>
           <div class="output-panel">
             <h3>文章文件</h3>
             <p class="muted">HTML 文件上传到仓库根目录后，也能作为独立页面被读者直接打开。</p>

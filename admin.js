@@ -3,6 +3,7 @@ window.__BLOG_ADMIN_LOADED__ = true;
 const config = window.BLOG_CONFIG;
 let posts = [];
 let avatarData = config.site.avatar || "";
+let collections = (config.collections || []).map((collection) => ({ cover: "", ...collection }));
 let generatedFileName = "";
 let generatedPostsJson = "";
 
@@ -18,10 +19,11 @@ const fields = {
   commentEmail: $("#comment-email-input"),
   commentGithub: $("#comment-github-input"),
   about: $("#about-input"),
-  collections: $("#collections-input"),
   avatar: $("#avatar-input"),
   avatarPreview: $("#avatar-preview"),
   configOutput: $("#config-output"),
+  collectionManageList: $("#collection-manage-list"),
+  collectionsOutput: $("#collections-output"),
   postTitle: $("#post-title"),
   postDate: $("#post-date"),
   postTags: $("#post-tags"),
@@ -29,6 +31,7 @@ const fields = {
   postVisibility: $("#post-visibility"),
   postFile: $("#post-file"),
   postBody: $("#post-body"),
+  postPreview: $("#post-preview"),
   fileOutput: $("#file-output"),
   manifestOutput: $("#manifest-output"),
   managedOutput: $("#managed-output"),
@@ -44,6 +47,7 @@ async function init() {
   fillSiteForm();
   fields.postDate.valueAsDate = new Date();
   await loadPosts();
+  renderCollectionManager();
   fillCollectionSelect();
   renderManageList();
   renderTagManageList();
@@ -73,9 +77,6 @@ function fillSiteForm() {
   fields.commentEmail.value = config.customComments?.email || "";
   fields.commentGithub.value = config.customComments?.githubIssueUrl || "https://github.com/superherolegendsheep/archive/issues/new";
   fields.about.value = cleanEditableAbout(config.site.about || "");
-  fields.collections.value = (config.collections || [])
-    .map((collection) => `${collection.id} | ${collection.title} | ${collection.description || ""}`)
-    .join("\n");
   renderAvatarPreview();
 }
 
@@ -84,15 +85,13 @@ async function loadPosts() {
   posts = response.ok ? await response.json() : [];
 }
 
-function fillCollectionSelect() {
-  fields.postCollection.innerHTML = parseCollections()
-    .map((collection) => `<option value="${escapeAttribute(collection.id)}">${escapeHtml(collection.title)}</option>`)
-    .join("");
-}
-
 function bindEvents() {
-  $("#build-config").addEventListener("click", buildConfig);
+  $("#build-config").addEventListener("click", () => writeConfigOutput(fields.configOutput));
   $("#download-config").addEventListener("click", () => downloadText("site.config.js", fields.configOutput.value));
+  $("#add-collection").addEventListener("click", addCollection);
+  $("#build-collections-config").addEventListener("click", () => writeConfigOutput(fields.collectionsOutput));
+  $("#download-collections-config").addEventListener("click", () => downloadText("site.config.js", fields.collectionsOutput.value));
+  $("#preview-post").addEventListener("click", renderPostPreview);
   $("#build-post").addEventListener("click", buildPost);
   $("#download-post").addEventListener("click", () => downloadText(generatedFileName, fields.fileOutput.value));
   $("#download-posts-json").addEventListener("click", () => downloadText("posts.json", fields.manifestOutput.value));
@@ -102,7 +101,6 @@ function bindEvents() {
   $("#download-tag-posts").addEventListener("click", () => downloadText("posts.json", fields.tagOutput.value));
   fields.avatar.addEventListener("change", readAvatar);
   fields.postFile.addEventListener("change", readPostFile);
-  fields.collections.addEventListener("input", fillCollectionSelect);
 }
 
 async function readAvatar() {
@@ -118,11 +116,73 @@ function renderAvatarPreview() {
     : `<span>还没有头像</span>`;
 }
 
+function renderCollectionManager() {
+  fields.collectionManageList.innerHTML = collections
+    .map((collection, index) => `
+      <article class="manage-row collection-manage-row">
+        <div>
+          <strong>${escapeHtml(collection.title || "未命名作品集")}</strong>
+          <span>${escapeHtml(collection.id || "no-id")}</span>
+        </div>
+        <label>id<input data-collection-id="${index}" type="text" value="${escapeAttribute(collection.id || "")}" /></label>
+        <label>标题<input data-collection-title="${index}" type="text" value="${escapeAttribute(collection.title || "")}" /></label>
+        <label class="wide-label">简介<textarea data-collection-description="${index}">${escapeHtml(collection.description || "")}</textarea></label>
+        <label class="wide-label">封面<input data-collection-cover="${index}" type="file" accept="image/*" /></label>
+        <div class="collection-cover-preview">${collection.cover ? `<img src="${escapeAttribute(collection.cover)}" alt="" />` : "无封面"}</div>
+        <label class="delete-check">
+          <input type="checkbox" data-collection-delete="${index}" />
+          删除
+        </label>
+      </article>
+    `)
+    .join("");
+
+  fields.collectionManageList.querySelectorAll("[data-collection-cover]").forEach((input) => {
+    input.addEventListener("change", async () => {
+      const index = Number(input.dataset.collectionCover);
+      const file = input.files[0];
+      if (!file) return;
+      collections[index].cover = await readAsDataUrl(file);
+      renderCollectionManager();
+    });
+  });
+}
+
+function addCollection() {
+  collections.push({
+    id: `collection-${collections.length + 1}`,
+    title: "新作品集",
+    description: "",
+    cover: ""
+  });
+  renderCollectionManager();
+  fillCollectionSelect();
+}
+
+function collectCollectionsFromForm() {
+  collections = collections
+    .map((collection, index) => ({
+      id: slugify(document.querySelector(`[data-collection-id="${index}"]`)?.value || collection.id),
+      title: document.querySelector(`[data-collection-title="${index}"]`)?.value.trim() || collection.title,
+      description: document.querySelector(`[data-collection-description="${index}"]`)?.value.trim() || "",
+      cover: collection.cover || ""
+    }))
+    .filter((_, index) => !document.querySelector(`[data-collection-delete="${index}"]`)?.checked);
+  fillCollectionSelect();
+}
+
+function fillCollectionSelect() {
+  fields.postCollection.innerHTML = collections
+    .map((collection) => `<option value="${escapeAttribute(collection.id)}">${escapeHtml(collection.title)}</option>`)
+    .join("");
+}
+
 async function readPostFile() {
   const file = fields.postFile.files[0];
   if (!file) return;
   fields.postTitle.value ||= file.name.replace(/\.[^.]+$/, "");
   fields.postBody.value = await readArticleFile(file);
+  renderPostPreview();
 }
 
 async function readArticleFile(file) {
@@ -132,8 +192,9 @@ async function readArticleFile(file) {
   return file.text();
 }
 
-function buildConfig() {
-  const nextConfig = {
+function buildConfigObject() {
+  collectCollectionsFromForm();
+  return {
     theme: fields.theme.value,
     postsPerPage: config.postsPerPage || 5,
     site: {
@@ -149,7 +210,7 @@ function buildConfig() {
       },
       links: []
     },
-    collections: parseCollections(),
+    collections,
     comments: config.comments,
     customComments: {
       enabled: true,
@@ -158,8 +219,19 @@ function buildConfig() {
     },
     themes: config.themes
   };
+}
 
-  fields.configOutput.value = `window.BLOG_CONFIG = ${JSON.stringify(nextConfig, null, 2)};\n`;
+function writeConfigOutput(target) {
+  target.value = `window.BLOG_CONFIG = ${JSON.stringify(buildConfigObject(), null, 2)};\n`;
+}
+
+function renderPostPreview() {
+  const body = fields.postBody.value.trim();
+  if (!body) {
+    fields.postPreview.innerHTML = `<p class="muted">正文为空。</p>`;
+    return;
+  }
+  fields.postPreview.innerHTML = looksLikeHtml(body) ? body : markdownToHtml(body);
 }
 
 function buildPost() {
@@ -277,19 +349,8 @@ function buildManagedTags() {
   fields.tagOutput.value = generatedPostsJson;
 }
 
-function parseCollections() {
-  return fields.collections.value
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const [id, title, description = ""] = line.split("|").map((part) => part.trim());
-      return { id: slugify(id), title: title || id, description };
-    });
-}
-
 function getCollectionTitle(id) {
-  return parseCollections().find((collection) => collection.id === id)?.title || "未归档";
+  return collections.find((collection) => collection.id === id)?.title || "未归档";
 }
 
 function splitTags(value) {
@@ -306,6 +367,23 @@ function slugify(value) {
 
 function looksLikeHtml(value) {
   return /<\/?[a-z][\s\S]*>/i.test(value);
+}
+
+function markdownToHtml(markdown) {
+  return cleanEditableAbout(markdown)
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => `<p>${inlineMarkdown(line)}</p>`)
+    .join("");
+}
+
+function inlineMarkdown(text) {
+  return escapeHtml(text)
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/`(.+?)`/g, "<code>$1</code>")
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
 }
 
 function cleanEditableAbout(value) {

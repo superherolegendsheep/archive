@@ -22,6 +22,7 @@ const els = {
   aboutTitle: document.querySelector("#about-title"),
   aboutBody: document.querySelector("#about-body"),
   collectionList: document.querySelector("#collection-list"),
+  aboutCollectionList: document.querySelector("#about-collection-list"),
   search: document.querySelector("#search-input"),
   tagFilterList: document.querySelector("#tag-filter-list"),
   postList: document.querySelector("#post-list"),
@@ -97,15 +98,9 @@ async function loadPosts() {
 }
 
 function renderCollections() {
-  els.collectionList.innerHTML = getCollectionsWithCounts()
-    .map((collection) => `
-      <button class="collection-card" type="button" data-collection-filter="${escapeAttribute(collection.id)}">
-        <span class="collection-count">${collection.count}</span>
-        <strong>${escapeHtml(collection.title)}</strong>
-        <span>${escapeHtml(collection.description || "")}</span>
-      </button>
-    `)
-    .join("");
+  const html = getCollectionsWithCounts().map(renderCollectionCard).join("");
+  els.collectionList.innerHTML = html;
+  els.aboutCollectionList.innerHTML = html;
 
   document.querySelectorAll("[data-collection-filter]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -114,6 +109,20 @@ function renderCollections() {
       filterPosts();
     });
   });
+}
+
+function renderCollectionCard(collection) {
+  const cover = collection.cover
+    ? `<span class="collection-cover"><img src="${escapeAttribute(collection.cover)}" alt="" /></span>`
+    : `<span class="collection-cover collection-cover-empty">${escapeHtml(collection.title.slice(0, 1))}</span>`;
+  return `
+    <button class="collection-card" type="button" data-collection-filter="${escapeAttribute(collection.id)}">
+      ${cover}
+      <span class="collection-count">${collection.count}</span>
+      <strong>${escapeHtml(collection.title)}</strong>
+      <span>${escapeHtml(collection.description || "")}</span>
+    </button>
+  `;
 }
 
 function renderTagFilters() {
@@ -157,7 +166,8 @@ function getCollection(id) {
   return (config.collections || []).find((collection) => collection.id === id) || {
     id: "uncategorized",
     title: "未归档",
-    description: ""
+    description: "",
+    cover: ""
   };
 }
 
@@ -238,7 +248,7 @@ async function openPost(id) {
     .join("");
   renderLike(post.id);
   renderComments(post);
-  renderCustomCommentForm(post);
+  renderCustomCommentForm();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -281,10 +291,7 @@ function toggleLike() {
 
 function renderComments(post) {
   els.commentsBox.innerHTML = "";
-  if (!config.comments.enabled) {
-    els.commentsBox.innerHTML = `<p class="muted">评论区已预留。配置 Giscus 后，这里会显示 GitHub Discussions 评论。</p>`;
-    return;
-  }
+  if (!config.comments.enabled) return;
 
   const script = document.createElement("script");
   script.src = "https://giscus.app/client.js";
@@ -303,7 +310,7 @@ function renderComments(post) {
   els.commentsBox.appendChild(script);
 }
 
-function renderCustomCommentForm(post) {
+function renderCustomCommentForm() {
   const custom = config.customComments || {};
   if (!custom.enabled) {
     els.commentForm.hidden = true;
@@ -405,35 +412,30 @@ function markdownToHtml(markdown) {
       closeList();
       return;
     }
-
     if (trimmed.startsWith("# ")) {
       flushParagraph();
       closeList();
       html.push(`<h1>${inlineMarkdown(trimmed.slice(2))}</h1>`);
       return;
     }
-
     if (trimmed.startsWith("## ")) {
       flushParagraph();
       closeList();
       html.push(`<h2>${inlineMarkdown(trimmed.slice(3))}</h2>`);
       return;
     }
-
     if (trimmed.startsWith("### ")) {
       flushParagraph();
       closeList();
       html.push(`<h3>${inlineMarkdown(trimmed.slice(4))}</h3>`);
       return;
     }
-
     if (trimmed.startsWith("> ")) {
       flushParagraph();
       closeList();
       html.push(`<blockquote>${inlineMarkdown(trimmed.slice(2))}</blockquote>`);
       return;
     }
-
     if (/^- /.test(trimmed)) {
       flushParagraph();
       if (!listOpen) {
@@ -443,7 +445,6 @@ function markdownToHtml(markdown) {
       html.push(`<li>${inlineMarkdown(trimmed.slice(2))}</li>`);
       return;
     }
-
     paragraph.push(trimmed);
   });
 

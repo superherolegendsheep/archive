@@ -16,6 +16,7 @@ window.BLOG_CONFIG = {
   },
   "collections": [
     {
+      "cover": "",
       "id": "media-naranja",
       "title": "半只橙子",
       "description": "天龙人也会有烦恼吗？"

@@ -274,6 +274,29 @@ textarea {
   padding: 16px;
 }
 
+.collection-cover {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  border-radius: 6px;
+  background: var(--accent-soft);
+}
+
+.collection-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.collection-cover-empty {
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  font-size: 22px;
+  font-weight: 700;
+}
+
 .collection-card strong {
   font-size: 19px;
 }
@@ -495,6 +518,12 @@ button.tag:hover {
   margin-top: 28px;
 }
 
+.about-collections {
+  margin-top: 34px;
+  border-top: 1px solid var(--line);
+  padding-top: 22px;
+}
+
 .work-layout {
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
@@ -636,6 +665,37 @@ select {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.72);
   padding: 14px;
+}
+
+.collection-manage-row {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.collection-cover-preview {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  width: 160px;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.collection-cover-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.post-preview {
+  min-height: 120px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 18px;
 }
 
 .manage-row div {

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>个人文字站</title>
     <meta name="description" content="一个安静、简洁的个人文字博客。" />
-    <link rel="stylesheet" href="assets/styles.css" />
+    <link rel="stylesheet" href="./assets/styles.css" />
   </head>
   <body>
     <div class="site-shell">
@@ -32,6 +32,11 @@
           </label>
         </header>
 
+        <section class="tag-filter" aria-label="标签筛选">
+          <button class="tag-filter-button is-active" type="button" data-tag-filter="all">全部</button>
+          <div id="tag-filter-list" class="tag-filter-list"></div>
+        </section>
+
         <section id="post-list" class="post-list" aria-live="polite"></section>
 
         <nav class="pagination" aria-label="分页">
@@ -53,7 +58,7 @@
           <h2 id="reader-title"></h2>
           <div id="reader-tags" class="tag-row"></div>
           <div class="reader-actions">
-            <button id="like-button" type="button">喜欢 <span id="like-count">0</span></button>
+            <button id="like-button" type="button">喜欢 0</button>
           </div>
           <div id="reader-body" class="reader-body"></div>
           <section class="comments">
@@ -64,7 +69,7 @@
       </main>
     </div>
 
-    <script src="site.config.js"></script>
-    <script src="assets/app.js"></script>
+    <script src="./site.config.js"></script>
+    <script src="./assets/app.js"></script>
   </body>
 </html>

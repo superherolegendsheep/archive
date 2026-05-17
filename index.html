@@ -84,6 +84,25 @@
           <section class="comments">
             <h3>评论</h3>
             <div id="comments-box"></div>
+            <form id="custom-comment-form" class="comment-form">
+              <label>
+                昵称
+                <input id="comment-name" type="text" placeholder="可以填写笔名" />
+              </label>
+              <label>
+                引用范围
+                <input id="comment-quote" type="text" placeholder="可不引用；例如：第 3 段 / 某一句 / 章节名" />
+              </label>
+              <label>
+                评论内容
+                <textarea id="comment-body" placeholder="写下你的评论"></textarea>
+              </label>
+              <div class="comment-actions">
+                <button id="send-comment-email" type="button">用邮件发送</button>
+                <button id="send-comment-github" type="button">发送到 GitHub</button>
+              </div>
+              <p id="comment-help" class="muted"></p>
+            </form>
           </section>
         </article>
 

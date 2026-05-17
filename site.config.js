@@ -24,9 +24,9 @@ window.BLOG_CONFIG = {
   "comments": {
     "enabled": false,
     "repo": "superherolegendsheep/archive",
-    "repoId": "R_kgDOSf3f9w",
+    "repoId": "",
     "category": "Announcements",
-    "categoryId": "DIC_kwDOSf3f984C9Pa_"
+    "categoryId": ""
   },
   "themes": {
     "sage": {
@@ -56,5 +56,10 @@ window.BLOG_CONFIG = {
       "accent": "#4d6f88",
       "accentSoft": "#dfe9ef"
     }
+  },
+  "customComments": {
+    "enabled": true,
+    "email": "",
+    "githubIssueUrl": "https://github.com/superherolegendsheep/archive/issues/new"
   }
 };

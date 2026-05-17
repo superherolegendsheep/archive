@@ -34,6 +34,13 @@ const els = {
   closeReader: document.querySelector("#close-reader"),
   likeButton: document.querySelector("#like-button"),
   commentsBox: document.querySelector("#comments-box"),
+  commentForm: document.querySelector("#custom-comment-form"),
+  commentName: document.querySelector("#comment-name"),
+  commentQuote: document.querySelector("#comment-quote"),
+  commentBody: document.querySelector("#comment-body"),
+  commentHelp: document.querySelector("#comment-help"),
+  sendCommentEmail: document.querySelector("#send-comment-email"),
+  sendCommentGithub: document.querySelector("#send-comment-github"),
   firstPage: document.querySelector("#first-page"),
   prevPage: document.querySelector("#prev-page"),
   nextPage: document.querySelector("#next-page"),
@@ -231,6 +238,7 @@ async function openPost(id) {
     .join("");
   renderLike(post.id);
   renderComments(post);
+  renderCustomCommentForm(post);
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -293,6 +301,65 @@ function renderComments(post) {
   script.setAttribute("data-theme", "light");
   script.setAttribute("data-lang", "zh-CN");
   els.commentsBox.appendChild(script);
+}
+
+function renderCustomCommentForm(post) {
+  const custom = config.customComments || {};
+  if (!custom.enabled) {
+    els.commentForm.hidden = true;
+    return;
+  }
+
+  els.commentForm.hidden = false;
+  els.commentName.value = "";
+  els.commentQuote.value = "";
+  els.commentBody.value = "";
+
+  const hasEmail = Boolean(custom.email);
+  const hasGithub = Boolean(custom.githubIssueUrl);
+  els.sendCommentEmail.hidden = !hasEmail;
+  els.sendCommentGithub.hidden = !hasGithub;
+  els.commentHelp.textContent = hasEmail || hasGithub
+    ? "引用范围可以不填。提交后会打开邮件或 GitHub 页面，由读者确认发送。"
+    : "评论接收方式还没有配置。请在 site.config.js 里填写 customComments.email 或 customComments.githubIssueUrl。";
+}
+
+function buildCommentText() {
+  const name = els.commentName.value.trim() || "匿名读者";
+  const quote = els.commentQuote.value.trim() || "未引用具体范围";
+  const body = els.commentBody.value.trim();
+  if (!body) {
+    alert("请先填写评论内容。");
+    return "";
+  }
+
+  return [
+    `文章：${state.activePost?.title || ""}`,
+    `文章文件：${state.activePost?.file || ""}`,
+    `读者名称：${name}`,
+    `引用范围：${quote}`,
+    "",
+    "评论内容：",
+    body
+  ].join("\n");
+}
+
+function sendCommentByEmail() {
+  const custom = config.customComments || {};
+  const text = buildCommentText();
+  if (!text || !custom.email) return;
+  const subject = `博客评论：${state.activePost?.title || ""}`;
+  window.location.href = `mailto:${encodeURIComponent(custom.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+}
+
+function sendCommentToGithub() {
+  const custom = config.customComments || {};
+  const text = buildCommentText();
+  if (!text || !custom.githubIssueUrl) return;
+  const url = new URL(custom.githubIssueUrl);
+  url.searchParams.set("title", `博客评论：${state.activePost?.title || ""}`);
+  url.searchParams.set("body", text);
+  window.open(url.toString(), "_blank", "noreferrer");
 }
 
 function filterPosts() {
@@ -456,6 +523,8 @@ els.jumpButton.addEventListener("click", () => goToPage(Number(els.pageJump.valu
 els.closeReader.addEventListener("click", renderList);
 els.likeButton.addEventListener("click", toggleLike);
 els.openAbout.addEventListener("click", toggleAbout);
+els.sendCommentEmail.addEventListener("click", sendCommentByEmail);
+els.sendCommentGithub.addEventListener("click", sendCommentToGithub);
 
 document.addEventListener("click", (event) => {
   const tagButton = event.target.closest("[data-tag-card]");

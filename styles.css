@@ -452,6 +452,14 @@ button.tag:hover {
   margin: 0 0 1.15em;
 }
 
+.about-view .reader-body {
+  line-height: 1.72;
+}
+
+.about-view .reader-body p {
+  margin: 0 0 0.32em;
+}
+
 .reader-body blockquote {
   border-left: 3px solid var(--accent);
   color: var(--muted);
@@ -503,6 +511,43 @@ button.tag:hover {
   margin-top: 36px;
   border-top: 1px solid var(--line);
   padding-top: 22px;
+}
+
+.comment-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.comment-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.comment-form input,
+.comment-form textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+  padding: 9px 11px;
+}
+
+.comment-form textarea {
+  min-height: 120px;
+}
+
+.comment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.comment-actions button {
+  padding: 0 14px;
 }
 
 .admin-shell {

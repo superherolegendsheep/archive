@@ -4,7 +4,6 @@ const config = window.BLOG_CONFIG;
 let posts = [];
 let avatarData = config.site.avatar || "";
 let generatedFileName = "";
-let generatedFileContent = "";
 let generatedPostsJson = "";
 
 const $ = (selector) => document.querySelector(selector);
@@ -16,6 +15,8 @@ const fields = {
   location: $("#profile-location-input"),
   content: $("#profile-content-input"),
   theme: $("#theme-input"),
+  commentEmail: $("#comment-email-input"),
+  commentGithub: $("#comment-github-input"),
   about: $("#about-input"),
   collections: $("#collections-input"),
   avatar: $("#avatar-input"),
@@ -33,12 +34,7 @@ const fields = {
   managedOutput: $("#managed-output"),
   tagOutput: $("#tag-output"),
   postManageList: $("#post-manage-list"),
-  tagManageList: $("#tag-manage-list"),
-  githubOwner: $("#github-owner"),
-  githubRepo: $("#github-repo"),
-  githubBranch: $("#github-branch"),
-  githubToken: $("#github-token"),
-  githubOutput: $("#github-output")
+  tagManageList: $("#tag-manage-list")
 };
 
 init();
@@ -70,19 +66,17 @@ function fillSiteForm() {
   const profileValues = Object.values(config.site.profile || {});
   fields.siteTitle.value = config.site.title || "";
   fields.tagline.value = config.site.tagline || "";
-  fields.identity.value = getProfileValue("身份", 0, profileValues);
-  fields.location.value = getProfileValue("坐标", 1, profileValues);
-  fields.content.value = getProfileValue("内容", 2, profileValues);
+  fields.identity.value = config.site.profile?.["身份"] || profileValues[0] || "";
+  fields.location.value = config.site.profile?.["坐标"] || profileValues[1] || "";
+  fields.content.value = config.site.profile?.["内容"] || profileValues[2] || "";
   fields.theme.value = config.theme || "sage";
+  fields.commentEmail.value = config.customComments?.email || "";
+  fields.commentGithub.value = config.customComments?.githubIssueUrl || "https://github.com/superherolegendsheep/archive/issues/new";
   fields.about.value = cleanEditableAbout(config.site.about || "");
   fields.collections.value = (config.collections || [])
     .map((collection) => `${collection.id} | ${collection.title} | ${collection.description || ""}`)
     .join("\n");
   renderAvatarPreview();
-}
-
-function getProfileValue(key, index, values) {
-  return config.site.profile?.[key] || values[index] || "";
 }
 
 async function loadPosts() {
@@ -106,7 +100,6 @@ function bindEvents() {
   $("#download-managed-posts").addEventListener("click", () => downloadText("posts.json", fields.managedOutput.value));
   $("#build-managed-tags").addEventListener("click", buildManagedTags);
   $("#download-tag-posts").addEventListener("click", () => downloadText("posts.json", fields.tagOutput.value));
-  $("#upload-github").addEventListener("click", uploadGeneratedToGitHub);
   fields.avatar.addEventListener("change", readAvatar);
   fields.postFile.addEventListener("change", readPostFile);
   fields.collections.addEventListener("input", fillCollectionSelect);
@@ -133,8 +126,7 @@ async function readPostFile() {
 }
 
 async function readArticleFile(file) {
-  const name = file.name.toLowerCase();
-  if (name.endsWith(".docx")) {
+  if (file.name.toLowerCase().endsWith(".docx")) {
     return extractDocxText(await file.arrayBuffer());
   }
   return file.text();
@@ -149,7 +141,7 @@ function buildConfig() {
       tagline: fields.tagline.value.trim(),
       avatar: avatarData,
       aboutTitle: "关于我",
-      about: normalizeAboutInput(fields.about.value),
+      about: cleanEditableAbout(fields.about.value),
       profile: {
         "身份": fields.identity.value.trim(),
         "坐标": fields.location.value.trim(),
@@ -159,13 +151,18 @@ function buildConfig() {
     },
     collections: parseCollections(),
     comments: config.comments,
+    customComments: {
+      enabled: true,
+      email: fields.commentEmail.value.trim(),
+      githubIssueUrl: fields.commentGithub.value.trim()
+    },
     themes: config.themes
   };
 
   fields.configOutput.value = `window.BLOG_CONFIG = ${JSON.stringify(nextConfig, null, 2)};\n`;
 }
 
-async function buildPost() {
+function buildPost() {
   const title = fields.postTitle.value.trim();
   const body = fields.postBody.value.trim();
   if (!title || !body) {
@@ -179,7 +176,6 @@ async function buildPost() {
   const extension = isHtml ? "html" : "md";
   const id = slugify(`${date}-${title}`);
   generatedFileName = `${id}.${extension}`;
-  generatedFileContent = isHtml ? body : body;
 
   const nextPost = {
     id,
@@ -195,7 +191,7 @@ async function buildPost() {
 
   const nextPosts = [nextPost, ...posts.filter((post) => post.id !== id)];
   generatedPostsJson = JSON.stringify(nextPosts, null, 2);
-  fields.fileOutput.value = generatedFileContent;
+  fields.fileOutput.value = body;
   fields.manifestOutput.value = generatedPostsJson;
 }
 
@@ -281,63 +277,6 @@ function buildManagedTags() {
   fields.tagOutput.value = generatedPostsJson;
 }
 
-async function uploadGeneratedToGitHub() {
-  const token = fields.githubToken.value.trim();
-  const owner = fields.githubOwner.value.trim();
-  const repo = fields.githubRepo.value.trim();
-  const branch = fields.githubBranch.value.trim() || "main";
-
-  if (!token || !owner || !repo) {
-    setGitHubOutput("请先填写 owner、仓库名和 token。");
-    return;
-  }
-  if (!generatedFileName || !generatedFileContent || !generatedPostsJson) {
-    setGitHubOutput("请先在“新增文章”里生成文章文件和 posts.json。");
-    return;
-  }
-
-  try {
-    setGitHubOutput("正在上传文章文件...");
-    await putGitHubFile({ owner, repo, branch, token, path: generatedFileName, content: generatedFileContent });
-    setGitHubOutput("文章文件已上传，正在上传 posts.json...");
-    await putGitHubFile({ owner, repo, branch, token, path: "posts.json", content: generatedPostsJson });
-    setGitHubOutput(`上传完成。\n文章直读地址：https://${owner}.github.io/${repo}/${generatedFileName}\n博客地址：https://${owner}.github.io/${repo}/`);
-  } catch (error) {
-    setGitHubOutput(`上传失败：${error.message}`);
-  }
-}
-
-async function putGitHubFile({ owner, repo, branch, token, path, content }) {
-  const api = `https://api.github.com/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`;
-  const current = await fetch(`${api}?ref=${encodeURIComponent(branch)}`, {
-    headers: {
-      Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${token}`
-    }
-  });
-  const currentJson = current.ok ? await current.json() : null;
-
-  const response = await fetch(api, {
-    method: "PUT",
-    headers: {
-      Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      message: `Update ${path}`,
-      branch,
-      content: toBase64(content),
-      sha: currentJson?.sha
-    })
-  });
-
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(detail);
-  }
-}
-
 function parseCollections() {
   return fields.collections.value
     .split("\n")
@@ -369,16 +308,20 @@ function looksLikeHtml(value) {
   return /<\/?[a-z][\s\S]*>/i.test(value);
 }
 
-function normalizeAboutInput(value) {
-  return cleanEditableAbout(value).trim();
-}
-
 function cleanEditableAbout(value) {
   return String(value)
+    .replace(/<\/p>\s*<p>/gi, "\n")
+    .replace(/^<p>/i, "")
+    .replace(/<\/p>$/i, "")
+    .replace(/<br\s*\/?>/gi, "\n")
     .replace(/^```(?:markdown|md|text)?\s*/i, "")
     .replace(/```\s*$/i, "")
     .replace(/^markdown\s*$/gim, "")
-    .trim();
+    .replace(/<[^>]+>/g, "")
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .join("\n");
 }
 
 function buildSummary(content) {
@@ -475,14 +418,6 @@ async function fetchFirst(paths) {
     if (response.ok) return response;
   }
   return new Response("", { status: 404 });
-}
-
-function toBase64(value) {
-  return btoa(unescape(encodeURIComponent(value)));
-}
-
-function setGitHubOutput(message) {
-  fields.githubOutput.textContent = message;
 }
 
 function escapeHtml(value) {

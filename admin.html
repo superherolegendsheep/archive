@@ -11,20 +11,17 @@
       <section class="admin-panel">
         <p class="eyebrow">Local Manager</p>
         <h1>博客管理工具</h1>
-        <p class="muted">
-          这里会生成可上传到 GitHub 的文件。浏览器无法强制选择下载文件夹，所以请把下载文件放回当前工作区或直接上传到仓库根目录。
-        </p>
+        <p class="muted">这里会生成可上传到 GitHub 的文件。浏览器不能强制指定下载目录，下载后请移动到工作区或直接上传到仓库根目录。</p>
 
         <nav class="admin-tabs" aria-label="管理功能">
           <button class="is-active" type="button" data-admin-tab="site">站点信息</button>
           <button type="button" data-admin-tab="post">新增文章</button>
           <button type="button" data-admin-tab="manage">管理文章</button>
           <button type="button" data-admin-tab="tags">管理标签</button>
-          <button type="button" data-admin-tab="github">上传 GitHub</button>
         </nav>
 
         <section class="admin-tab-panel" data-admin-panel="site">
-          <h2>站点信息、头像、颜色</h2>
+          <h2>站点信息、头像、颜色、评论接收</h2>
           <div class="form-grid">
             <label>站点名称<input id="site-title-input" type="text" /></label>
             <label>一句话简介<input id="site-tagline-input" type="text" /></label>
@@ -39,6 +36,8 @@
                 <option value="ink">ink</option>
               </select>
             </label>
+            <label>评论接收邮箱<input id="comment-email-input" type="email" placeholder="可留空" /></label>
+            <label>GitHub Issue 地址<input id="comment-github-input" type="url" placeholder="https://github.com/用户名/仓库/issues/new" /></label>
           </div>
           <label class="wide-label">完整身份页正文<textarea id="about-input"></textarea></label>
           <label class="wide-label">作品集，每行一个：id | 标题 | 简介<textarea id="collections-input"></textarea></label>
@@ -54,7 +53,7 @@
 
         <section class="admin-tab-panel" data-admin-panel="post" hidden>
           <h2>新增文章</h2>
-          <p class="muted">可以直接粘贴正文，也可以选择 .html、.md、.txt、.docx 文件。文章统一作为“博文”管理，不再区分文本和 HTML 类型。</p>
+          <p class="muted">可以直接粘贴正文，也可以选择 .html、.md、.txt、.docx 文件。文章统一作为博文管理。</p>
           <div class="form-grid">
             <label>标题<input id="post-title" type="text" placeholder="例如：雨夜札记" /></label>
             <label>日期<input id="post-date" type="date" /></label>
@@ -76,13 +75,12 @@
           <button id="build-post" type="button">生成文章文件和 posts.json</button>
           <div class="output-panel">
             <h3>文章文件</h3>
-            <p class="muted">建议保存到工作区，然后上传到 GitHub 仓库根目录。HTML 文件也会作为独立页面供读者直接打开。</p>
+            <p class="muted">HTML 文件上传到仓库根目录后，也能作为独立页面被读者直接打开。</p>
             <textarea id="file-output" readonly></textarea>
             <button id="download-post" type="button">下载文章文件</button>
           </div>
           <div class="output-panel">
             <h3>新的 posts.json</h3>
-            <p class="muted">建议保存到工作区：posts.json</p>
             <textarea id="manifest-output" readonly></textarea>
             <button id="download-posts-json" type="button">下载 posts.json</button>
           </div>
@@ -108,21 +106,6 @@
             <textarea id="tag-output" readonly></textarea>
             <button id="download-tag-posts" type="button">下载 posts.json</button>
           </div>
-        </section>
-
-        <section class="admin-tab-panel" data-admin-panel="github" hidden>
-          <h2>上传 GitHub</h2>
-          <p class="muted">
-            这是可选功能。需要 GitHub fine-grained token，权限选择本仓库 Contents: Read and write。token 只在当前页面使用，不会写进文件。
-          </p>
-          <div class="form-grid">
-            <label>仓库 owner<input id="github-owner" type="text" value="superherolegendsheep" /></label>
-            <label>仓库名<input id="github-repo" type="text" value="archive" /></label>
-            <label>分支<input id="github-branch" type="text" value="main" /></label>
-            <label>GitHub token<input id="github-token" type="password" placeholder="只在本次上传时粘贴" /></label>
-          </div>
-          <button id="upload-github" type="button">上传刚生成的文章文件和 posts.json</button>
-          <pre id="github-output" class="github-output"></pre>
         </section>
       </section>
     </main>

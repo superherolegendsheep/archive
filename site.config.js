@@ -25,14 +25,9 @@ window.BLOG_CONFIG = {
   },
   "collections": [
     {
-      "id": "daily-notes",
-      "title": "日常札记",
-      "description": "随笔、记录、灵感碎片和站点说明。"
-    },
-    {
-      "id": "layout-works",
-      "title": "排版作品",
-      "description": "HTML 排版二创、视觉化文字页面和特殊格式作品。"
+      "id": "media-naranja",
+      "title": "半只橙子",
+      "description": "天龙人也会有烦恼吗？"
     }
   ],
   "comments": {

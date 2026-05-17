@@ -2,8 +2,8 @@ window.BLOG_CONFIG = {
   theme: "sage",
   postsPerPage: 5,
   site: {
-    title: "你的名字",
-    tagline: "写字、整理、保存一些心事与作品。",
+    title: "superherolegendsheep",
+    tagline: "沪京/中美/安平",
     profile: {
       "身份": "文字创作者",
       "坐标": "某个安静的地方",

@@ -1,24 +1,15 @@
 [
   {
-    "id": "welcome",
-    "title": "欢迎来到我的文字站",
+    "id": "Spinoff2",
+    "title": "老张同志到底是咋回事儿啊",
     "date": "2026-05-17",
-    "tags": ["随笔", "站点说明"],
-    "collection": "daily-notes",
+    "tags": [
+      "论坛体"
+    ],
+    "collection": "media-naranja",
     "visibility": "public",
-    "summary": "这里可以放你的原创文字、排版二创、日记、札记，或者任何想长期保存的作品。",
-    "file": "posts/welcome.md",
-    "type": "markdown"
-  },
-  {
-    "id": "html-layout-demo",
-    "title": "HTML 排版作品示例",
-    "date": "2026-05-16",
-    "tags": ["HTML", "排版"],
-    "collection": "layout-works",
-    "visibility": "public",
-    "summary": "如果你有已经排好版的 HTML 作品，也可以直接放进 posts 文件夹并加入清单。",
-    "file": "posts/html-layout-demo.html",
+    "summary": "无内鬼，来点欧明看过的楼组",
+    "file": "Spinoff2.html",
     "type": "html"
   }
 ]

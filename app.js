@@ -18,12 +18,9 @@ const els = {
   profileList: document.querySelector("#profile-list"),
   profileLinks: document.querySelector("#profile-links"),
   openAbout: document.querySelector("#open-about"),
-  closeAbout: document.querySelector("#close-about"),
   aboutView: document.querySelector("#about-view"),
   aboutTitle: document.querySelector("#about-title"),
   aboutBody: document.querySelector("#about-body"),
-  aboutProfileList: document.querySelector("#about-profile-list"),
-  aboutProfileLinks: document.querySelector("#about-profile-links"),
   collectionList: document.querySelector("#collection-list"),
   search: document.querySelector("#search-input"),
   tagFilterList: document.querySelector("#tag-filter-list"),
@@ -63,7 +60,7 @@ function renderProfile() {
   els.siteTitle.textContent = config.site.title;
   els.siteTagline.textContent = config.site.tagline;
   els.aboutTitle.textContent = config.site.aboutTitle || "关于我";
-  els.aboutBody.innerHTML = markdownToHtml(cleanDisplayText(config.site.about || ""));
+  els.aboutBody.innerHTML = linesToParagraphs(cleanDisplayText(config.site.about || ""));
 
   if (config.site.avatar) {
     els.avatar.innerHTML = `<img src="${escapeAttribute(config.site.avatar)}" alt="" />`;
@@ -71,22 +68,17 @@ function renderProfile() {
     els.avatar.textContent = (config.site.title || "文").slice(0, 1);
   }
 
-  const profileHtml = Object.entries(config.site.profile)
+  els.profileList.innerHTML = Object.entries(config.site.profile || {})
     .map(([key, value]) => `<div><dt>${escapeHtml(key)}</dt><dd>${escapeHtml(value)}</dd></div>`)
     .join("");
 
-  const linksHtml = (config.site.links || [])
+  els.profileLinks.innerHTML = (config.site.links || [])
     .map((link) => `<a href="${escapeAttribute(link.url)}" target="_blank" rel="noreferrer">${escapeHtml(link.label)}</a>`)
     .join("");
-
-  els.profileList.innerHTML = profileHtml;
-  els.aboutProfileList.innerHTML = profileHtml;
-  els.profileLinks.innerHTML = linksHtml;
-  els.aboutProfileLinks.innerHTML = linksHtml;
 }
 
 async function loadPosts() {
-  const response = await fetchFirst(["./posts/posts.json", "./posts.json"]);
+  const response = await fetchFirst(["./posts.json", "./posts/posts.json"]);
   if (!response.ok) throw new Error("posts.json not found");
   const posts = await response.json();
   state.posts = posts
@@ -98,17 +90,14 @@ async function loadPosts() {
 }
 
 function renderCollections() {
-  const collections = getCollectionsWithCounts();
-  els.collectionList.innerHTML = collections
-    .map((collection) => {
-      return `
-        <button class="collection-card" type="button" data-collection-filter="${escapeAttribute(collection.id)}">
-          <span class="collection-count">${collection.count}</span>
-          <strong>${escapeHtml(collection.title)}</strong>
-          <span>${escapeHtml(collection.description || "")}</span>
-        </button>
-      `;
-    })
+  els.collectionList.innerHTML = getCollectionsWithCounts()
+    .map((collection) => `
+      <button class="collection-card" type="button" data-collection-filter="${escapeAttribute(collection.id)}">
+        <span class="collection-count">${collection.count}</span>
+        <strong>${escapeHtml(collection.title)}</strong>
+        <span>${escapeHtml(collection.description || "")}</span>
+      </button>
+    `)
     .join("");
 
   document.querySelectorAll("[data-collection-filter]").forEach((button) => {
@@ -232,6 +221,7 @@ async function openPost(id) {
   els.homeView.hidden = true;
   els.aboutView.hidden = true;
   els.reader.hidden = false;
+  els.openAbout.textContent = "完整身份页";
   els.readerDate.textContent = formatDate(post.date);
   els.readerTitle.textContent = post.title;
   els.readerBody.innerHTML = post.type === "html" ? source : markdownToHtml(source);
@@ -244,10 +234,15 @@ async function openPost(id) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function openAbout() {
+function toggleAbout() {
+  if (!els.aboutView.hidden) {
+    renderList();
+    return;
+  }
   els.homeView.hidden = true;
   els.reader.hidden = true;
   els.aboutView.hidden = false;
+  els.openAbout.textContent = "返回主页";
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -255,6 +250,7 @@ function showHome() {
   els.homeView.hidden = false;
   els.reader.hidden = true;
   els.aboutView.hidden = true;
+  els.openAbout.textContent = "完整身份页";
 }
 
 function renderLike(id) {
@@ -397,11 +393,25 @@ function inlineMarkdown(text) {
     .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
 }
 
+function linesToParagraphs(value) {
+  return cleanDisplayText(value)
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => `<p>${inlineMarkdown(line)}</p>`)
+    .join("");
+}
+
 function cleanDisplayText(value) {
   return String(value || "")
+    .replace(/<\/p>\s*<p>/gi, "\n")
+    .replace(/^<p>/i, "")
+    .replace(/<\/p>$/i, "")
+    .replace(/<br\s*\/?>/gi, "\n")
     .replace(/^```(?:markdown|md|text)?\s*/i, "")
     .replace(/```\s*$/i, "")
     .replace(/^markdown\s*$/gim, "")
+    .replace(/<[^>]+>/g, "")
     .trim();
 }
 
@@ -445,8 +455,7 @@ els.lastPage.addEventListener("click", () => goToPage(getPageCount()));
 els.jumpButton.addEventListener("click", () => goToPage(Number(els.pageJump.value)));
 els.closeReader.addEventListener("click", renderList);
 els.likeButton.addEventListener("click", toggleLike);
-els.openAbout.addEventListener("click", openAbout);
-els.closeAbout.addEventListener("click", renderList);
+els.openAbout.addEventListener("click", toggleAbout);
 
 document.addEventListener("click", (event) => {
   const tagButton = event.target.closest("[data-tag-card]");

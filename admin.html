@@ -82,7 +82,47 @@
             </label>
           </div>
           <label class="wide-label">选择文件，也可以不选<input id="post-file" type="file" accept=".html,.htm,.md,.markdown,.txt,.docx,text/html,text/markdown,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" /></label>
-          <label class="wide-label">正文<textarea id="post-body" placeholder="把文章内容粘贴到这里"></textarea></label>
+          <section class="rich-editor-block" aria-label="文章可视化编辑器">
+            <div class="editor-toolbar" aria-label="格式工具栏">
+              <button type="button" data-command="bold" title="加粗"><strong>B</strong></button>
+              <button type="button" data-command="italic" title="斜体"><em>I</em></button>
+              <button type="button" data-command="underline" title="下划线"><u>U</u></button>
+              <button type="button" data-command="strikeThrough" title="删除线"><s>S</s></button>
+              <button type="button" data-command="insertUnorderedList" title="项目列表">•</button>
+              <button type="button" data-command="insertOrderedList" title="编号列表">1.</button>
+              <button type="button" data-command="formatBlock" data-value="blockquote" title="引用">“ ”</button>
+              <button type="button" data-command="justifyLeft" title="左对齐">左</button>
+              <button type="button" data-command="justifyCenter" title="居中">中</button>
+              <button type="button" data-command="justifyRight" title="右对齐">右</button>
+              <button type="button" id="insert-link" title="插入链接">链接</button>
+              <button type="button" data-command="removeFormat" title="清除格式">清除</button>
+              <select id="format-block" title="段落样式">
+                <option value="p">正文</option>
+                <option value="h1">标题 1</option>
+                <option value="h2">标题 2</option>
+                <option value="h3">标题 3</option>
+              </select>
+              <select id="font-name" title="字体">
+                <option value="Microsoft YaHei">微软雅黑</option>
+                <option value="SimSun">宋体</option>
+                <option value="KaiTi">楷体</option>
+                <option value="Arial">Arial</option>
+                <option value="Georgia">Georgia</option>
+              </select>
+              <select id="font-size" title="字号">
+                <option value="2">小</option>
+                <option value="3" selected>正文</option>
+                <option value="4">中</option>
+                <option value="5">大</option>
+                <option value="6">特大</option>
+                <option value="7">标题</option>
+              </select>
+              <label class="color-tool">文字<input id="text-color" type="color" value="#30332f" /></label>
+              <label class="color-tool">底色<input id="bg-color" type="color" value="#ffffff" /></label>
+            </div>
+            <div id="rich-editor" class="rich-editor" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="在这里写正文，也可以先上传 Word / TXT / HTML 文件"></div>
+          </section>
+          <label class="wide-label">源代码 / 纯文本<textarea id="post-body" placeholder="这里会同步显示编辑器内容，也可以直接粘贴 HTML"></textarea></label>
           <div class="admin-actions">
             <button id="preview-post" type="button">预览文章格式</button>
             <button id="build-post" type="button">生成文章文件和 posts.json</button>

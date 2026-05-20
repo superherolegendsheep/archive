@@ -733,6 +733,74 @@ select {
   padding: 18px;
 }
 
+.rich-editor-block {
+  margin: 18px 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  overflow: hidden;
+}
+
+.editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.82);
+  padding: 10px;
+}
+
+.editor-toolbar button {
+  min-width: 38px;
+  min-height: 34px;
+  padding: 0 10px;
+}
+
+.editor-toolbar select {
+  width: auto;
+  min-height: 34px;
+  padding: 5px 8px;
+}
+
+.color-tool {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.color-tool input {
+  width: 34px;
+  height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.rich-editor {
+  min-height: 320px;
+  padding: 18px;
+  background: var(--panel);
+  color: var(--ink);
+  outline: none;
+  overflow-wrap: anywhere;
+}
+
+.rich-editor:empty::before {
+  content: attr(data-placeholder);
+  color: var(--muted);
+}
+
+.rich-editor blockquote,
+.post-preview blockquote {
+  border-left: 3px solid var(--accent);
+  color: var(--muted);
+  margin: 0 0 1em;
+  padding-left: 14px;
+}
+
 .manage-row div {
   display: grid;
   gap: 4px;

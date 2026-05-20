@@ -30,6 +30,12 @@ const fields = {
   postCollection: $("#post-collection"),
   postVisibility: $("#post-visibility"),
   postFile: $("#post-file"),
+  richEditor: $("#rich-editor"),
+  formatBlock: $("#format-block"),
+  fontName: $("#font-name"),
+  fontSize: $("#font-size"),
+  textColor: $("#text-color"),
+  bgColor: $("#bg-color"),
   postBody: $("#post-body"),
   postPreview: $("#post-preview"),
   fileOutput: $("#file-output"),
@@ -101,6 +107,20 @@ function bindEvents() {
   $("#download-tag-posts").addEventListener("click", () => downloadText("posts.json", fields.tagOutput.value));
   fields.avatar.addEventListener("change", readAvatar);
   fields.postFile.addEventListener("change", readPostFile);
+  fields.richEditor.addEventListener("input", () => {
+    syncEditorToSource();
+    renderPostPreview();
+  });
+  fields.postBody.addEventListener("input", syncSourceToEditor);
+  document.querySelectorAll("[data-command]").forEach((button) => {
+    button.addEventListener("click", () => applyEditorCommand(button.dataset.command, button.dataset.value));
+  });
+  fields.formatBlock.addEventListener("change", () => applyEditorCommand("formatBlock", fields.formatBlock.value));
+  fields.fontName.addEventListener("change", () => applyEditorCommand("fontName", fields.fontName.value));
+  fields.fontSize.addEventListener("change", () => applyEditorCommand("fontSize", fields.fontSize.value));
+  fields.textColor.addEventListener("input", () => applyEditorCommand("foreColor", fields.textColor.value));
+  fields.bgColor.addEventListener("input", () => applyEditorCommand("hiliteColor", fields.bgColor.value));
+  $("#insert-link").addEventListener("click", insertEditorLink);
 }
 
 async function readAvatar() {
@@ -181,7 +201,13 @@ async function readPostFile() {
   const file = fields.postFile.files[0];
   if (!file) return;
   fields.postTitle.value ||= file.name.replace(/\.[^.]+$/, "");
-  fields.postBody.value = await readArticleFile(file);
+  const content = await readArticleFile(file);
+  if (looksLikeHtml(content)) {
+    fields.richEditor.innerHTML = content;
+  } else {
+    fields.richEditor.innerHTML = markdownToHtml(content);
+  }
+  syncEditorToSource();
   renderPostPreview();
 }
 
@@ -226,26 +252,24 @@ function writeConfigOutput(target) {
 }
 
 function renderPostPreview() {
-  const body = fields.postBody.value.trim();
+  const body = getPostBodyHtml();
   if (!body) {
     fields.postPreview.innerHTML = `<p class="muted">正文为空。</p>`;
     return;
   }
-  fields.postPreview.innerHTML = looksLikeHtml(body) ? body : markdownToHtml(body);
+  fields.postPreview.innerHTML = body;
 }
 
 function buildPost() {
   const title = fields.postTitle.value.trim();
-  const body = fields.postBody.value.trim();
+  const body = getPostBodyHtml();
   if (!title || !body) {
     alert("请至少填写标题和正文。");
     return;
   }
 
   const date = fields.postDate.value || new Date().toISOString().slice(0, 10);
-  const sourceName = fields.postFile.files[0]?.name.toLowerCase() || "";
-  const isHtml = sourceName.endsWith(".html") || sourceName.endsWith(".htm") || looksLikeHtml(body);
-  const extension = isHtml ? "html" : "md";
+  const extension = "html";
   const id = slugify(`${date}-${title}`);
   generatedFileName = `${id}.${extension}`;
 
@@ -259,13 +283,49 @@ function buildPost() {
     visibility: fields.postVisibility.value,
     summary: buildSummary(body),
     file: generatedFileName,
-    type: isHtml ? "html" : "markdown"
+    type: "html"
   };
 
   const nextPosts = [nextPost, ...posts.filter((post) => post.id !== id)];
   generatedPostsJson = JSON.stringify(nextPosts, null, 2);
   fields.fileOutput.value = body;
   fields.manifestOutput.value = generatedPostsJson;
+}
+
+function applyEditorCommand(command, value = null) {
+  fields.richEditor.focus();
+  document.execCommand(command, false, value);
+  syncEditorToSource();
+  renderPostPreview();
+}
+
+function insertEditorLink() {
+  const url = prompt("请输入链接地址，例如 https://example.com");
+  if (!url) return;
+  applyEditorCommand("createLink", url);
+}
+
+function syncEditorToSource() {
+  fields.postBody.value = normalizeEditorHtml(fields.richEditor.innerHTML);
+}
+
+function syncSourceToEditor() {
+  const source = fields.postBody.value.trim();
+  fields.richEditor.innerHTML = looksLikeHtml(source) ? source : markdownToHtml(source);
+  renderPostPreview();
+}
+
+function getPostBodyHtml() {
+  const editorHtml = normalizeEditorHtml(fields.richEditor.innerHTML);
+  if (editorHtml) return editorHtml;
+  const source = fields.postBody.value.trim();
+  return looksLikeHtml(source) ? source : markdownToHtml(source);
+}
+
+function normalizeEditorHtml(value) {
+  const html = String(value || "").trim();
+  if (!html || html === "<br>") return "";
+  return html;
 }
 
 function renderManageList() {

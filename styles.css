@@ -344,6 +344,15 @@ textarea {
   padding: 20px;
 }
 
+.post-card-clickable {
+  cursor: pointer;
+}
+
+.post-card-clickable:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 .post-card h3 {
   font-size: 22px;
 }

@@ -179,7 +179,7 @@ function renderList() {
   const pageCount = getPageCount();
   state.page = Math.min(Math.max(state.page, 1), pageCount);
   const start = (state.page - 1) * config.postsPerPage;
-  const visiblePosts = state.filtered.slice(start, start + config.postsPerPage);
+  const visiblePosts = getOrderedPosts(state.filtered).slice(start, start + config.postsPerPage);
 
   showHome();
   els.postList.innerHTML = visiblePosts.length
@@ -194,8 +194,16 @@ function renderList() {
   els.nextPage.disabled = state.page === pageCount;
   els.lastPage.disabled = state.page === pageCount;
 
-  document.querySelectorAll("[data-open-post]").forEach((button) => {
-    button.addEventListener("click", () => openPost(button.dataset.openPost));
+  document.querySelectorAll("[data-open-post-card]").forEach((card) => {
+    card.addEventListener("click", (event) => {
+      if (event.target.closest("button, a, input, textarea, select")) return;
+      openPost(card.dataset.openPostCard);
+    });
+    card.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      openPost(card.dataset.openPostCard);
+    });
   });
 }
 
@@ -206,7 +214,7 @@ function renderPostCard(post) {
   const collection = getCollection(post.collection);
 
   return `
-    <article class="post-card">
+    <article class="post-card post-card-clickable" role="button" tabindex="0" data-open-post-card="${escapeAttribute(post.id)}">
       <div class="post-meta">
         <span class="eyebrow">${formatDate(post.date)}</span>
         <button class="collection-chip" type="button" data-collection-card="${escapeAttribute(collection.id)}">${escapeHtml(collection.title)}</button>
@@ -214,9 +222,6 @@ function renderPostCard(post) {
       <h3>${escapeHtml(post.title)}</h3>
       <p class="muted">${escapeHtml(post.summary || "")}</p>
       <div class="tag-row">${tags}</div>
-      <div>
-        <button type="button" data-open-post="${escapeAttribute(post.id)}">阅读</button>
-      </div>
     </article>
   `;
 }
@@ -395,6 +400,18 @@ function filterPosts() {
   });
   updateFilterState();
   renderList();
+}
+
+function getOrderedPosts(posts) {
+  const byCollectionOrder = state.activeCollection !== "all";
+  return [...posts].sort((a, b) => {
+    if (byCollectionOrder) {
+      const orderA = Number.isFinite(Number(a.order)) ? Number(a.order) : 999999;
+      const orderB = Number.isFinite(Number(b.order)) ? Number(b.order) : 999999;
+      if (orderA !== orderB) return orderA - orderB;
+    }
+    return new Date(b.date) - new Date(a.date);
+  });
 }
 
 function goToPage(page) {

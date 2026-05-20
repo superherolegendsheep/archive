@@ -444,7 +444,7 @@
 
     <div class="two-columns">
         <div class="main-content">
-            <div class="post-header">
+            <div class="post-header" id="threadQuestion">
                 <div class="post-title">老张同志到底是咋回事儿啊</div>
                 <div class="post-meta">
                     <div style="display: flex; align-items: center;">
@@ -1635,7 +1635,7 @@
                 else if (target === 'next' && currentPage < pages) currentPage++;
                 else if (target) currentPage = parseInt(target);
                 renderCurrentPage();
-                scrollToPageTop();
+                scrollToQuestionStart();
             });
         });
 
@@ -1649,13 +1649,18 @@
                 if (target > pages) target = pages;
                 currentPage = target;
                 renderCurrentPage();
-                scrollToPageTop();
+                scrollToQuestionStart();
             };
             jumpBtn.addEventListener('click', doJump);
             jumpInput.addEventListener('keypress', e => { if (e.key === 'Enter') doJump(); });
         }
     }
-    function scrollToPageTop() {
+    function scrollToQuestionStart() {
+        const question = document.getElementById('threadQuestion');
+        if (question) {
+            question.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     function renderCurrentPage() {

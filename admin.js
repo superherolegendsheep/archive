@@ -255,6 +255,7 @@ function buildPost() {
     date,
     tags: splitTags(fields.postTags.value),
     collection: fields.postCollection.value,
+    order: getNextCollectionOrder(fields.postCollection.value),
     visibility: fields.postVisibility.value,
     summary: buildSummary(body),
     file: generatedFileName,
@@ -282,6 +283,10 @@ function renderManageList() {
             <option value="private" ${post.visibility === "private" ? "selected" : ""}>仅自己可见草稿</option>
           </select>
         </label>
+        <label>
+          作品集顺序
+          <input data-manage-order="${escapeAttribute(post.id)}" type="number" min="1" step="1" value="${escapeAttribute(post.order || "")}" />
+        </label>
         <label class="delete-check">
           <input type="checkbox" data-manage-delete="${escapeAttribute(post.id)}" />
           删除
@@ -296,6 +301,7 @@ function buildManagedPosts() {
     .filter((post) => !document.querySelector(`[data-manage-delete="${cssEscape(post.id)}"]`)?.checked)
     .map((post) => ({
       ...post,
+      order: Number(document.querySelector(`[data-manage-order="${cssEscape(post.id)}"]`)?.value) || undefined,
       visibility: document.querySelector(`[data-manage-visibility="${cssEscape(post.id)}"]`)?.value || "public"
     }));
 
@@ -351,6 +357,14 @@ function buildManagedTags() {
 
 function getCollectionTitle(id) {
   return collections.find((collection) => collection.id === id)?.title || "未归档";
+}
+
+function getNextCollectionOrder(collectionId) {
+  const orders = posts
+    .filter((post) => post.collection === collectionId)
+    .map((post) => Number(post.order))
+    .filter((order) => Number.isFinite(order));
+  return orders.length ? Math.max(...orders) + 1 : 1;
 }
 
 function splitTags(value) {
